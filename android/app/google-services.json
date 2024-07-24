@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "419887890168",
+    "firebase_url": "https://toha-3b821-default-rtdb.firebaseio.com",
+    "project_id": "toha-3b821",
+    "storage_bucket": "toha-3b821.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:419887890168:android:62bda0e9839f70a097450d",
+        "android_client_info": {
+          "package_name": "com.toha"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjXBiQyAfdrzIpFPsYyFpESuJT-wDc3tY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
