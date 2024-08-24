@@ -22,7 +22,7 @@ function Home({navigation}){
 
     const dispatch = useDispatch()
 
-    const {data,loading} = useSelector(state=>state)
+    const {data,loading} = useSelector(state=>state['login'])
 
 
     

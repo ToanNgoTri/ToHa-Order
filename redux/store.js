@@ -10,18 +10,20 @@ import { read } from './loginReducer'
   
 
 import {all} from 'redux-saga/effects'
-import {mySaga,saga} from './loginReducer'
+import {saga,saga1} from './loginReducer'
 import {loader,handle, run} from './loginReducer'
 
 const sagaMiddleware = createSagaMiddleware()
 
 export function* rootSaga(){
-  yield all([saga()])
+  yield all([
+    saga1(),saga()
+  ])
 }
 
 
 export const store = configureStore({
-    reducer: read.reducer,
+  reducer: {login:login.reducer,read:read.reducer},
     middleware:(getDefaultMiddleware)=> getDefaultMiddleware({serializableCheck:false}).concat([sagaMiddleware])
 
     // middleware:(getDefaultMiddleware)=> getDefaultMiddleware().concat([sagaMiddleware])

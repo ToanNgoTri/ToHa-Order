@@ -7,7 +7,8 @@ import {useState, useEffect} from 'react';
 import MainLogin from '../screens/MainLogin';
 import Home from '../screens/Home';
 import SignUp from '../screens/SignUp';
-import ManagerTab from '../screens/ManagerTab';
+import {ManagerTab} from '../screens/ManagerTab';
+import {StatisticTab} from '../screens/StatisticTab';
 import OrderTab from '../screens/OrderTab';
 import CookingTab from '../screens/CookingTab';
 import {Alert, Text, TouchableOpacity, View, StyleSheet} from 'react-native';
@@ -17,6 +18,8 @@ import {faMugSaucer} from '@fortawesome/free-solid-svg-icons/faMugSaucer';
 import {faFireBurner} from '@fortawesome/free-solid-svg-icons/faFireBurner';
 import {faSquarePollVertical} from '@fortawesome/free-solid-svg-icons/faSquarePollVertical';
 import {faStar} from '@fortawesome/free-solid-svg-icons/faStar';
+import {faChartColumn} from '@fortawesome/free-solid-svg-icons/faChartColumn';
+import {faGear} from '@fortawesome/free-solid-svg-icons/faGear';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -110,11 +113,11 @@ export const StaffTabNavigators = ({navigation}) => {
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({
-        lazy: false, // khi app chạy thì sẽ sẽ chạy hết tất cả các tab đồng loạt chứ không phải nhấn vô mới load
+        lazy: true, // khi app chạy thì sẽ sẽ chạy hết tất cả các tab đồng loạt chứ không phải nhấn vô mới load
       })}>
       <Tab.Screen
-        name="CookingTab"
-        component={CookingTab}
+        name="OrderTab"
+        component={OrderTab}
         options={() => ({
           title: '',
           headerRight: () => (
@@ -157,7 +160,7 @@ export const StaffTabNavigators = ({navigation}) => {
                 style={
                   focused ? {...styles.tabItemActive} : styles.tabItemInactive
                 }>
-                  <FontAwesomeIcon icon={faMugSaucer} style={
+                  <FontAwesomeIcon icon={ faMugSaucer} style={
                     focused ? styles.IconActive : styles.IconInActive
                   }/>
                 {/* <Ionicons
@@ -173,9 +176,9 @@ export const StaffTabNavigators = ({navigation}) => {
           },
         })}
       />
-      <Tab.Screen
-        name="OrderTab"
-        component={OrderTab}
+            <Tab.Screen
+        name="CookingTab"
+        component={CookingTab}
         options={() => ({
           title: '',
           headerRight: () => (
@@ -234,6 +237,7 @@ export const StaffTabNavigators = ({navigation}) => {
           },
         })}
       />
+
     </Tab.Navigator>
   );
 };
@@ -244,9 +248,59 @@ export const BossTabNavigators = ({navigation}) => {
       screenOptions={({route}) => ({
         lazy: false, // khi app chạy thì sẽ sẽ chạy hết tất cả các tab đồng loạt chứ không phải nhấn vô mới load
       })}>
+              <Tab.Screen
+        name="StatisticTab"
+        component={StatisticTab}
+        options={() => ({
+          title: '',
+          headerRight: () => (
+            <>
+              <TouchableOpacity
+                // style={styles.iconInfoContainer}
+                onPress={() => {
+                  navigation.reset({index: 0, routes: [{name: 'Home'}]});
+                  AsyncStorage.clear();
+                }}>
+                <Text>Log Out</Text>
+              </TouchableOpacity>
+            </>
+          ),
+          headerLeft: () => (
+            <>
+                <TouchableOpacity
+                  // style={styles.iconInfoContainer}
+                  onPress={() => {
+                    // navigation.navigate('Home')
+                    navigation.reset({index: 0, routes: [{name: 'Home'}]});
+                    // AsyncStorage.clear()
+                  }}>
+                  <Text>Back</Text>
+                </TouchableOpacity>
+              
+            </>
+          ),
+          tabBarIcon: ({focused, color, size}) => {
+            return (
+              <View
+                style={
+                  focused ? {...styles.tabItemActive} : styles.tabItemInactive
+                }>
+                  <FontAwesomeIcon icon={faSquarePollVertical} style={
+                    focused ? styles.IconActive : styles.IconInActive
+                  }/>
+              </View>
+            );
+          },
+          tabBarLabel: () => {
+            return null;
+          },
+
+        })}
+      />
+
       <Tab.Screen
-        name="CookingTab"
-        component={CookingTab}
+        name="ManagerTab"
+        component={ManagerTab}
         options={() => ({
           title: '',
           headerRight: () => (
@@ -283,7 +337,7 @@ export const BossTabNavigators = ({navigation}) => {
                 style={
                   focused ? {...styles.tabItemActive} : styles.tabItemInactive
                 }>
-                  <FontAwesomeIcon icon={faSquarePollVertical} style={
+                  <FontAwesomeIcon icon={ faGear} style={
                     focused ? styles.IconActive : styles.IconInActive
                   }/>
               </View>
@@ -292,41 +346,6 @@ export const BossTabNavigators = ({navigation}) => {
           tabBarLabel: () => {
             return null;
           },
-        })}
-      />
-      <Tab.Screen
-        name="OrderTab"
-        component={OrderTab}
-        options={() => ({
-          title: '',
-          headerRight: () => (
-            <>
-              <TouchableOpacity
-                // style={styles.iconInfoContainer}
-                onPress={() => {
-                  navigation.reset({index: 0, routes: [{name: 'Home'}]});
-                  AsyncStorage.clear();
-                }}>
-                <Text>Out</Text>
-              </TouchableOpacity>
-            </>
-          ),
-          tabBarIcon: ({focused, color, size}) => {
-            return (
-              <View
-                style={
-                  focused ? {...styles.tabItemActive} : styles.tabItemInactive
-                }>
-                  <FontAwesomeIcon icon={faStar} style={
-                    focused ? styles.IconActive : styles.IconInActive
-                  }/>
-              </View>
-            );
-          },
-          tabBarLabel: () => {
-            return null;
-          },
-
         })}
       />
     </Tab.Navigator>

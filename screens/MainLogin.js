@@ -4,7 +4,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   View,
-  Alert,
+  Alert,StyleSheet
 } from 'react-native';
 import {useRoute} from '@react-navigation/native';
 import inAppMessaging from '@react-native-firebase/in-app-messaging';
@@ -114,7 +114,7 @@ function MainLogin({navigation}) {
 
   const dispatch = useDispatch();
 
-  const {data, loading} = useSelector(state => state);
+  const {userInfo, loading} = useSelector(state => state['login']);
   // console.log('data', data);
 
   async function onDisplayNotification(iden, stt) {
@@ -271,14 +271,14 @@ function MainLogin({navigation}) {
   }, []);
   // console.log(allUser);
 
-  if (data) {
-    for (let a = 0; a < data.length; a++) {
+  if (userInfo) {
+    for (let a = 0; a < userInfo.length; a++) {
       if (route.name == 'Staff') {
         // console.log(Object.values(data[a])[0]['userName']);
-        if (Object.values(data[a])[0]['userName'] == oldUsername) {
-          if (Object.values(data[a])[0]['pass'] == oldPass) {
+        if (Object.values(userInfo[a])[0]['userName'] == oldUsername) {
+          if (Object.values(userInfo[a])[0]['pass'] == oldPass) {
             console.log('đã login');
-            // navigation.navigate(`StaffScreen`);
+            navigation.navigate(`StaffScreen`);
             break;
           } else {
             console.log('chưa login');
@@ -288,10 +288,10 @@ function MainLogin({navigation}) {
         }
       } else {
         // console.log('Object.keys(data[a])["Boss"]', data[a]['Boss']);
-        if (data[a]['Boss']) {
-          if (data[a]['Boss']['userName'] == oldUsername) {
-            if (data[a]['Boss']['pass'] == oldPass) {
-              // navigation.navigate(`BossScreen`);
+        if (userInfo[a]['Boss']) {
+          if (userInfo[a]['Boss']['userName'] == oldUsername) {
+            if (userInfo[a]['Boss']['pass'] == oldPass) {
+              navigation.navigate(`BossScreen`);
               console.log('đã login');
               break;
             }
@@ -308,19 +308,19 @@ function MainLogin({navigation}) {
   console.log(name, oldUsername, oldPass);
 
   function checkUser() {
-    if (data) {
+    if (userInfo) {
       // console.log(data.length);
-      for (let a = 0; a < data.length; a++) {
+      for (let a = 0; a < userInfo.length; a++) {
         // if(data[a]['userName']){
         //  Object.keys(data[a])[0]
         // }
 
         if (route.name == 'Staff') {
           // console.log(Object.values(data[a])[0]['userName']);
-          if (Object.values(data[a])[0]['userName'] == username) {
-            if (Object.values(data[a])[0]['pass'] == pass) {
+          if (Object.values(userInfo[a])[0]['userName'] == username) {
+            if (Object.values(userInfo[a])[0]['pass'] == pass) {
               console.log('đúng');
-              storeInternal(Object.keys(data[a])[0], username, pass);
+              storeInternal(Object.keys(userInfo[a])[0], username, pass);
               navigation.navigate(`StaffScreen`);
               break;
             } else {
@@ -330,10 +330,10 @@ function MainLogin({navigation}) {
             // console.log('chưa đk');
           }
         } else {
-          console.log('Object.keys(data[a])["Boss"]', data[a]['Boss']);
-          if (data[a]['Boss']) {
-            if (data[a]['Boss']['userName'] == username) {
-              if (data[a]['Boss']['pass'] == pass) {
+          console.log('Object.keys(data[a])["Boss"]', userInfo[a]['Boss']);
+          if (userInfo[a]['Boss']) {
+            if (userInfo[a]['Boss']['userName'] == username) {
+              if (userInfo[a]['Boss']['pass'] == pass) {
                 storeInternal('Boss', username, pass);
                 navigation.navigate(`BossScreen`);
                 // console.log('đúng boss');
@@ -401,6 +401,7 @@ function MainLogin({navigation}) {
           } else {
             // navigation.navigate(`BossScreen`)
           }
+          navigation.navigate(`StaffScreen`)
         }}
         style={{backgroundColor: 'orange', padding: 5, marginTop: 5}}>
         <Text>Push</Text>
@@ -500,5 +501,13 @@ function MainLogin({navigation}) {
     </>
   );
 }
+
+
+const styles = StyleSheet.create({
+
+  
+});
+
+
 
 export default MainLogin;
