@@ -4,11 +4,12 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   View,
-  Alert,StyleSheet
+  Alert,StyleSheet,BackHandler
 } from 'react-native';
 import {useRoute} from '@react-navigation/native';
 import inAppMessaging from '@react-native-firebase/in-app-messaging';
 import {useState, useEffect, useContext} from 'react';
+import DeviceInfo from 'react-native-device-info';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {dataUser} from '../App';
@@ -16,19 +17,15 @@ import messaging from '@react-native-firebase/messaging';
 import notifee from '@notifee/react-native';
 import axios from 'axios';
 import NotificationSounds from 'react-native-notification-sounds';
+
+import {Cancel,Order,requestUserPermission,GetFCMToke,BackgroundMessageHandler,ForegroundMessageHandler,bootstrap,fetch} from'../notification/index'
+
 // import database from '@react-native-firebase/database';
 
-// import { createSlice, configureStore } from '@reduxjs/toolkit'
 
-// import { incremented, decremented, times, divide } from '../redux/action'
-// import { logIn } from '../redux/loginReducer';
-// import { store } from '../redux/store'
 import {useSelector, useDispatch} from 'react-redux';
-// import {loader,handle, run} from '../redux/loginReducer'
 
-// import firestore from '@react-native-firebase/firestore';
 
-import {requestUserPermission, GetFCMToke} from '../notification';
 
 function MainLogin({navigation}) {
   const route = useRoute();
@@ -44,23 +41,11 @@ function MainLogin({navigation}) {
   const [oldUsername, setOldUsername] = useState('');
   const [oldPass, setOldPass] = useState('');
 
-  // const [table, setTable] = useState('')
 
-  // const storeUser = async username => {
-  //   try {
-  //     await AsyncStorage.setItem('username', username);
-  //   } catch (e) {
-  //     //error
-  //   }
-  // };
+  const {userInfo, loading} = useSelector(state => state['login']);
+// console.log('userInfo',userInfo);
 
-  // const storePass = async pass => {
-  //   try {
-  //     await AsyncStorage.setItem('pass', pass);
-  //   } catch (e) {
-  //     //error
-  //   }
-  // };
+
 
   async function storeInternal(name, username, pass) {
     await AsyncStorage.setItem('name', name);
@@ -114,154 +99,179 @@ function MainLogin({navigation}) {
 
   const dispatch = useDispatch();
 
-  const {userInfo, loading} = useSelector(state => state['login']);
   // console.log('data', data);
 
-  async function onDisplayNotification(iden, stt) {
-    // notifee: dùng để gửi noti cả khi app đang chạy
-    // Request permissions (required for iOS)
-    // await notifee.requestPermission()
+  // async function onDisplayNotification(iden, stt) {
+  //   // notifee: dùng để gửi noti cả khi app đang chạy
+  //   // Request permissions (required for iOS)
+  //   // await notifee.requestPermission()
 
-    // Create a channel (required for Android)
-    const channelId = await notifee.createChannel({
-      id: 'order',
-      name: 'đặt',
-      sound: 'ey',
-    });
+  //   // Create a channel (required for Android)
+  //   const channelId = await notifee.createChannel({
+  //     id: 'order',
+  //     name: 'đặt',
+  //     sound: 'ey',
+  //   });
 
-    // Display a notification
-    if (stt) {
-      await notifee.displayNotification({
-        title: 'Khách đã đặt món',
-        body: `Có đơn tại bàn số ${iden}`,
-        android: {
-          channelId,
-          sound: 'ey',
-          // smallIcon: 'name-of-a-small-icon', // optional, defaults to 'ic_launcher'.
-          // pressAction is needed if you want the notification to open the app when pressed
-          pressAction: {
-            id: 'order',
-          },
-        },
-      });
-    } else {
-      await notifee.displayNotification({
-        title: 'Khách đã hủy món',
-        body: `Khách hủy đơn tại bàn số ${iden}`,
-        android: {
-          channelId,
-          sound: 'ey',
+  //   // Display a notification
+  //   if (stt) {
+  //     await notifee.displayNotification({
+  //       title: 'Khách đã đặt món',
+  //       body: `Có đơn tại bàn số ${iden}`,
+  //       android: {
+  //         channelId,
+  //         sound: 'ey',
+  //         // smallIcon: 'name-of-a-small-icon', // optional, defaults to 'ic_launcher'.
+  //         // pressAction is needed if you want the notification to open the app when pressed
+  //         pressAction: {
+  //           id: 'order',
+  //         },
+  //       },
+  //     });
+  //   } else {
+  //     await notifee.displayNotification({
+  //       title: 'Khách đã hủy món',
+  //       body: `Khách hủy đơn tại bàn số ${iden}`,
+  //       android: {
+  //         channelId,
+  //         sound: 'ey',
 
-          // smallIcon: 'name-of-a-small-icon', // optional, defaults to 'ic_launcher'.
-          // pressAction is needed if you want the notification to open the app when pressed
-          pressAction: {
-            id: 'order',
-          },
-        },
-      });
-    }
-    //   ,{
-    //   title: 'Khách đã hủy món',
-    //   body: `Hủy món tại bàn số ${iden}`,
-    //   android: {
-    //     channelId,
-    //     // smallIcon: 'name-of-a-small-icon', // optional, defaults to 'ic_launcher'.
-    //     // pressAction is needed if you want the notification to open the app when pressed
-    //     pressAction: {
-    //       id: 'cancel',
-    //     },
-    //   },
-    // },
-  }
+  //         // smallIcon: 'name-of-a-small-icon', // optional, defaults to 'ic_launcher'.
+  //         // pressAction is needed if you want the notification to open the app when pressed
+  //         pressAction: {
+  //           id: 'order',
+  //         },
+  //       },
+  //     });
+  //   }
+  //   //   ,{
+  //   //   title: 'Khách đã hủy món',
+  //   //   body: `Hủy món tại bàn số ${iden}`,
+  //   //   android: {
+  //   //     channelId,
+  //   //     // smallIcon: 'name-of-a-small-icon', // optional, defaults to 'ic_launcher'.
+  //   //     // pressAction is needed if you want the notification to open the app when pressed
+  //   //     pressAction: {
+  //   //       id: 'cancel',
+  //   //     },
+  //   //   },
+  //   // },
+  // }
 
-  async function fetch() {
-    try {
-      console.log('ád');
-      const abc = await axios.get(`https://tohaorderserver.onrender.com/`);
-      console.log('abc.data', abc.data);
-    } catch (e) {
-      console.log('error', e);
-    }
-  }
+  // async function fetch() {
+  //   try {
+  //     console.log('ád');
+  //     const abc = await axios.get(`https://tohaorderserver.onrender.com/`);
+  //     console.log('abc.data', abc.data);
+  //   } catch (e) {
+  //     console.log('error', e);
+  //   }
+  // }
 
-  async function Order(num) {
-    try {
-      const abc = await axios.get(
-        `https://tohaorderserver.onrender.com/order/${num}`,
-      );
-      console.log('abc', abc.data);
-      onDisplayNotification(num, true);
-    } catch (e) {
-      console.log('error', e);
-    }
-  }
+  // async function Order(num) {
+  //   try {
+  //     const abc = await axios.get(
+  //       `https://tohaorderserver.onrender.com/order/${num}`,
+  //     );
+  //     console.log('abc', abc.data);
+  //     onDisplayNotification(num, true);
+  //   } catch (e) {
+  //     console.log('error', e);
+  //   }
+  // }
 
-  async function Cancel(num) {
-    try {
-      const abc = await axios.get(
-        `https://tohaorderserver.onrender.com/cancel/${num}`,
-      );
-      console.log('abc', abc.data);
-      onDisplayNotification(num, false);
-    } catch (e) {
-      console.log('error', e);
-    }
-  }
+  // async function Cancel(num) {
+  //   try {
+  //     const abc = await axios.get(
+  //       `https://tohaorderserver.onrender.com/cancel/${num}`,
+  //     );
+  //     console.log('abc', abc.data);
+  //     onDisplayNotification(num, false);
+  //   } catch (e) {
+  //     console.log('error', e);
+  //   }
+  // }
 
-  async function requestUserPermission() {
-    const authStatus = await messaging().requestPermission();
-    const enabled =
-      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+  // async function requestUserPermission() {
+  //   const authStatus = await messaging().requestPermission();
+  //   const enabled =
+  //     authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+  //     authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-    if (enabled) {
-      // console.log('Authorization status:', authStatus);
-    }
-  }
+  //   if (enabled) {
+  //     // console.log('Authorization status:', authStatus);
+  //   }
+  // }
 
-  async function GetFCMToke() {
-    let fcmtoken = await AsyncStorage.getItem('fcmtoken');
-    // console.log('old token',fcmtoken);
+  // async function GetFCMToke() {
+  //   let fcmtoken = await AsyncStorage.getItem('fcmtoken');
+  //   // console.log('old token',fcmtoken);
 
-    if (!fcmtoken) {
-      try {
-        fcmtoken = await messaging().getToken();
-        if (fcmtoken) {
-          await AsyncStorage.setItem('fcmtoken', fcmtoken);
-          // console.log('new token',fcmtoken);
-        }
-      } catch {}
-    }
-  }
+  //   if (!fcmtoken) {
+  //     try {
+  //       fcmtoken = await messaging().getToken();
+  //       if (fcmtoken) {
+  //         await AsyncStorage.setItem('fcmtoken', fcmtoken);
+  //         // console.log('new token',fcmtoken);
+  //       }
+  //     } catch {}
+  //   }
+  // }
 
-  function BackgroundMessageHandler() {
-    // khi có noti đến thì xử lý khi app không chạy
+  // function BackgroundMessageHandler() {
+  //   // khi có noti đến thì xử lý khi app không chạy
 
-    messaging().setBackgroundMessageHandler(async remoteMessage => {
-      console.log('Message handled in the background!', remoteMessage);
-    });
-  }
+  //   messaging().setBackgroundMessageHandler(async remoteMessage => {
+  //     console.log('Message handled in the background!', remoteMessage);
+  //   });
+  // }
 
-  function ForegroundMessageHandler() {
-    // khi có noti đến thì xử lý khi app đang chạy
-    const unsubscribe = messaging().onMessage(async remoteMessage => {
-      Alert.alert('Thông báo', remoteMessage['notification']['body']);
-      console.log(remoteMessage['notification']['body']);
-      // onDisplayNotification();
-    });
+  // function ForegroundMessageHandler() {
+  //   // khi có noti đến thì xử lý khi app đang chạy
+  //   const unsubscribe = messaging().onMessage(async remoteMessage => {
+  //     Alert.alert('Thông báo', remoteMessage['notification']['body']);
+  //     console.log("remoteMessage['notification']['body']",remoteMessage['notification']['body']);
+  //     // onDisplayNotification();
+  //   });
 
-    return unsubscribe;
-  }
+  //   return unsubscribe;
+  // }
 
-  async function bootstrap() {
-    await inAppMessaging().setMessagesDisplaySuppressed(true);
-  }
+  // async function bootstrap() {
+  //   await inAppMessaging().setMessagesDisplaySuppressed(true);
+  // }
+
+  let bannedID= []
 
   useEffect(() => {
-    //     setallUser(dataUserContent.dataUserForApp[`${route.name}`])
-    // console.log(dataUserContent.dataUserForApp[`${route.name}`]);
+    
+    // userInfo.map((key,i)=>{
+    //   if(key['banned']){
+    //     bannedID.push(Object.values(key['banned'])[0])
+    //   }
+  
+    // })
+    // // console.log('bannedID',bannedID);
+  
+    // DeviceInfo.getUniqueId().then((uniqueId) => {
+    //   // console.log('uniqueId',uniqueId);
+    //   if(!bannedID.includes(uniqueId)){
 
-    // store.dispatch(logIn({username,pass}))
+
+        
+    //   }else{
+    //     // Alert.alert('Thong báo','Bạn không được quyền truy cập', [
+    //     //   {text: 'OK', onPress: () => BackHandler.exitApp(),},
+    //     // ]);
+  
+        
+    //   }
+    // });
+
+    
+    
+
+
 
     requestUserPermission();
     GetFCMToke();
@@ -305,7 +315,8 @@ function MainLogin({navigation}) {
     }
   }
 
-  console.log(name, oldUsername, oldPass);
+
+  // console.log(name, oldUsername, oldPass);
 
   function checkUser() {
     if (userInfo) {
@@ -315,35 +326,38 @@ function MainLogin({navigation}) {
         //  Object.keys(data[a])[0]
         // }
 
+        console.log(route.name);
         if (route.name == 'Staff') {
+
           // console.log(Object.values(data[a])[0]['userName']);
           if (Object.values(userInfo[a])[0]['userName'] == username) {
             if (Object.values(userInfo[a])[0]['pass'] == pass) {
               console.log('đúng');
               storeInternal(Object.keys(userInfo[a])[0], username, pass);
               navigation.navigate(`StaffScreen`);
+              console.log('đúng Staff');
               break;
             } else {
-              // console.log('sai mk');
+              console.log('sai mk');
             }
           } else {
-            // console.log('chưa đk');
+            console.log('chưa đk');
           }
-        } else {
+        } else if(route.name == 'Boss') {
           console.log('Object.keys(data[a])["Boss"]', userInfo[a]['Boss']);
           if (userInfo[a]['Boss']) {
             if (userInfo[a]['Boss']['userName'] == username) {
               if (userInfo[a]['Boss']['pass'] == pass) {
                 storeInternal('Boss', username, pass);
                 navigation.navigate(`BossScreen`);
-                // console.log('đúng boss');
+                console.log('đúng boss');
                 break;
               }
             } else {
-              // console.log('sai mk boss');
+              console.log('sai mk boss');
             }
           } else {
-            // console.log('chưa đk boss');
+            console.log('chưa đk boss');
           }
         }
       }
@@ -401,7 +415,7 @@ function MainLogin({navigation}) {
           } else {
             // navigation.navigate(`BossScreen`)
           }
-          navigation.navigate(`StaffScreen`)
+          // navigation.navigate(`StaffScreen`)
         }}
         style={{backgroundColor: 'orange', padding: 5, marginTop: 5}}>
         <Text>Push</Text>
@@ -415,13 +429,6 @@ function MainLogin({navigation}) {
           <Text>SignUp</Text>
         </TouchableOpacity>
       )}
-      <TouchableOpacity
-        onPress={() => {
-          onDisplayNotification();
-        }}
-        style={{backgroundColor: 'orange', padding: 5, marginTop: 5}}>
-        <Text>noti</Text>
-      </TouchableOpacity>
       <TouchableOpacity
         onPress={() => {
           fetch();

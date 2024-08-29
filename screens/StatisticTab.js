@@ -19,12 +19,26 @@ import {useSelector, useDispatch} from 'react-redux';
 import {loader, handle, run} from '../redux/loginReducer';
 
 export function StatisticTab({navigation}) {
+
+  const {dataOrder, loading} = useSelector(state => state['read']);
+  let foodObject = {}
+
+  if(dataOrder){
+    dataOrder['cost'].map((key,i)=>{
+            if(key['display']){
+              foodObject[key['foodName']] = key['cost']
+            }
+})
+}
+
+
+
   const [startDate, setStateDate] = useState(new Date());
   const [showStartDate, setShowStartDate] = useState(false);
   const [endDate, setEndDate] = useState(new Date());
   const [showEndDate, setShowEndDate] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [cost, setCost] = useState({});
+  const [cost, setCost] = useState(foodObject);
   const [sumMoney, setSumMoney] = useState(0);
   const [foodStatistic, setFoodStatistic] = useState({});
   const [data, setData] = useState(null);
@@ -41,7 +55,7 @@ export function StatisticTab({navigation}) {
       .ref(`/`)
       .on('value', snapshot => {
         setData(snapshot.val()['order']);
-        setCost(snapshot.val()['cost']);
+        // setCost(snapshot.val()['cost']);
       });
 
     // dispatch({type:'fetch'})
@@ -214,7 +228,7 @@ export function StatisticTab({navigation}) {
             </View>
             <View>
               {Object.entries(foodStatistic).map((key, i) => (
-                <View style={{textAlign: 'center', marginBottom: 30}}>
+                <View key={i} style={{textAlign: 'center', marginBottom: 30}}>
                   <Text style={{textAlign: 'center', marginBottom: 10}}>
                     Tên Sản phẩm {key[0]}
                   </Text>

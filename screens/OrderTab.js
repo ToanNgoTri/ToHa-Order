@@ -12,7 +12,7 @@ import {
 import {useState, useEffect, useContext, useRef} from 'react';
 import database from '@react-native-firebase/database';
 import RNPickerSelect from 'react-native-picker-select';
-
+import {Picker} from '@react-native-picker/picker';
 import messaging from '@react-native-firebase/messaging';
 import notifee from '@notifee/react-native';
 import axios from 'axios';
@@ -20,22 +20,61 @@ import NotificationSounds from 'react-native-notification-sounds';
 import {useSelector, useDispatch} from 'react-redux';
 import {select} from 'redux-saga/effects';
 
-function Order({navigation}) {
+import {Cancel,Order,requestUserPermission,GetFCMToke,BackgroundMessageHandler,ForegroundMessageHandler,bootstrap,fetch} from'../notification/index'
+
+import {useRoute} from '@react-navigation/native';
+
+
+function OrderComponent({navigation}) {
+
+
+  const {dataOrder, loading} = useSelector(state => state['read']);
+  let foodObject = {}
+
+  if(dataOrder){
+    dataOrder['cost'].map((key,i)=>{
+            if(key['display']){
+              foodObject[key['foodName']] = key['cost']
+            }
+})
+}
+
+const route = useRoute();
+
+
+// console.log(route.name);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   const [data, setData] = useState(null);
   const [inputSearchTable, setInputSearchTable] = useState('');
   const [searchTableResult, setSearchTableResult] = useState([]);
   const [inputModal, setInputModal] = useState('');
   const [searchInputModalResult, setInputModalResult] = useState([]);
-  const [cost, setCost] = useState({});
+  const [cost, setCost] = useState(foodObject);
   const [orderInfor, setOrderInfo] = useState({});
   const [modalVisible, setModalVisible] = useState(false);
   const [currentTableOrder, setCurrentTableOrder] = useState(null);
   const [SL, setSL] = useState([]); // cái này để phụ trợ để khi sử dụng Dropdown luôn được re-render
 
   const dispatch = useDispatch();
-  const {dataOrder, loading} = useSelector(state => state['read']);
 
-  // let time = new Date();
+  // foodSum = Object.keys(cost);
 
   time = new Date();
   let year = time.getFullYear();
@@ -46,7 +85,8 @@ function Order({navigation}) {
   //   tableSum = [' Bàn số 1','Bàn số 2','Bàn số 3','Bàn số 4','Bàn số 5']
 
   // console.log('Table',Table);
-  let foodSum = ['Món A', 'Món B', 'Món C', 'Món D', 'Món E'];
+  // let foodSum = ['Món A', 'Món B', 'Món C', 'Món D', 'Món E'];
+  let foodSum = Object.keys(cost);
 
   useEffect(() => {
     setSearchTableResult(
@@ -123,149 +163,36 @@ function Order({navigation}) {
   }, [inputModal]);
 
   function prepareOrderValue(selectQuantity, food, table) {
-    // let currentOrderCopy = currentOrder;
-    // if (selectQuantity > 0) {
-    //   setCurrentOrder({...currentOrder, [food]: selectQuantity});
-    //   console.log(1);
-    // } else if (currentOrder[food]) {
-    //   // delete currentOrderCopy[food];
-    //   // setCurrentOrder(null)
-    //   setCurrentOrder({});
-    //   delete currentOrderCopy[food];
-    //   setCurrentOrder(currentOrderCopy);
-    // }
-
     let date = new Date();
 
     let timeOrder = date.getTime(); // thoi gian bat dau goi (chua goi xong)
 
     let orderInforCopy = orderInfor;
 
-    // console.log('selectQuantity',selectQuantity);
-    // if (selectQuantity > 0) {
-    //   // if (orderInfor.length) {
-    //     if (orderInfor[table - 1] && orderInforCopy[table - 1][food]) {
-    //       orderInforCopy[table - 1][food]['quantity'] = selectQuantity;
-    //     } else {
-    //       // nesu thêm SL mới
-    //       orderInforCopy[table - 1] = {
-    //         ...orderInforCopy[table - 1],
-    //         [food]: {
-    //           ordering: true,
-    //           cooking: false,
-    //           finish: false,
-    //           cancel: false,
-    //           quantity: selectQuantity,
-    //           timeOrder: timeOrder,
-    //           table: table,
-    //           steady: false,
-    //         },
-    //       };
-    //       // console.log(2);
-    //     }
-    //   // } else {
-    //   //   // nếu mới vô và orderInfor chưa có gì
-    //   //   orderInforCopy[table - 1] = {
-    //   //     [food]: {
-    //   //       ordering: true,
-    //   //       cooking: false,
-    //   //       finish: false,
-    //   //       cancel: false,
-    //   //       quantity: selectQuantity,
-    //   //       timeOrder: timeOrder,
-    //   //       table: table,
-    //   //       steady: false,
-    //   //     },
-    //   //   };
-    //   //   // console.log(3);
-    //   // }
-    // } else {
-    //   // thay đổi SL bằng 0
-    //   // console.log(4);
-    //   if (orderInfor[table - 1]) {
-    //     if (orderInfor[table - 1][food]) {
-    //       delete orderInforCopy[table - 1][food];
-    //     }
-    //   }
-    // }
-
-    // if (selectQuantity > 0) {
-    //   if (!orderInforCopy.length) {
-    //     orderInforCopy[0] = {
-    //       [food]: {
-    //         ordering: true,
-    //         cooking: false,
-    //         finish: false,
-    //         cancel: false,
-    //         quantity: selectQuantity,
-    //         timeOrder: timeOrder,
-    //         table: table,
-    //         steady: false,
-    //       },
-    //     };
-    //   } else {
-
-    //     let exist = false
-    //     let Ordup
-    //     orderInforCopy.map((key, i) => {
-
-    //       if (orderInforCopy[i][food]) {
-    //         Ordup = i
-    //       }
-
-    //     });
-
-    //       if (Ordup) {
-    //         orderInforCopy[Ordup][food]['quantity'] = selectQuantity;
-    //       } else {
-    //         orderInforCopy.push({
-    //           [food]: {
-    //             ordering: true,
-    //             cooking: false,
-    //             finish: false,
-    //             cancel: false,
-    //             quantity: selectQuantity,
-    //             timeOrder: timeOrder,
-    //             table: table,
-    //             steady: false,
-    //           },
-    //         });
-    //       }
-
-    //   }
-    // }else{
-    //   orderInforCopy.map((key, i) => {
-    //     if (orderInforCopy[i][food]) {
-    //       delete  orderInforCopy[i]
-    //     }
-    //   });
 
     if (selectQuantity > 0) {
       if (!Object.keys(orderInforCopy).length) {
         orderInforCopy = {
           [food]: {
-            ordering: true,
+            ordering: timeOrder,
             cooking: false,
             finish: false,
             cancel: false,
             quantity: selectQuantity,
-            timeOrder: false,
             table: table,
             steady: false,
           },
         };
       } else {
         if (orderInforCopy[food]) {
-          console.log(1);
           orderInforCopy[food]['quantity'] = selectQuantity;
         } else {
           orderInforCopy[food] = {
-            ordering: true,
+            ordering: timeOrder,
             cooking: false,
             finish: false,
             cancel: false,
             quantity: selectQuantity,
-            timeOrder: false,
             table: table,
             steady: false,
           };
@@ -293,22 +220,15 @@ function Order({navigation}) {
   }
 
   useEffect(() => {
-    // database().ref(`/order/${year}/${month}/${day}`)
-    // .on('value', snapshot => {
-    //   setData(snapshot.val());
-    // });
-
     database()
       .ref(`/`)
       .on('value', snapshot => {
+        if(snapshot.val()['order']){
         setData(snapshot.val()['order'][year][month][day]);
-        setCost(snapshot.val()['cost']);
-        // console.log('User data: ', snapshot.val());
+
+      }
       });
 
-    dispatch({type: 'fetch'});
-    // setData(dataOrder['order'][year][month][day]);
-    //     setCost(dataOrder['cost']);
   }, []);
 
   async function OrderPush(table) {
@@ -316,6 +236,7 @@ function Order({navigation}) {
     //   .ref(`/order/${year}/${month}/${day}`)
     //   .once('value');
     // let b = a.val();
+    console.log(2);
 
     let dataPushOrdinal;
     if (data) {
@@ -333,9 +254,6 @@ function Order({navigation}) {
     let orderInforCopy = orderInfor;
 
     Object.keys(orderInforCopy).map((key,i)=>{
-
-      orderInforCopy[key]['timeOrder'] = timeOrder
-
 
     })
     console.log('orderInforCopy',orderInforCopy);
@@ -574,12 +492,12 @@ function Order({navigation}) {
                         style={pickerSelectStyles}
                         items={[
                           // {label: 'none', value: -1},
-                          {label: 1, value: 1},
-                          {label: 2, value: 2},
-                          {label: 3, value: 3},
-                          {label: 4, value: 4},
-                          {label: 5, value: 5},
-                          {label: 6, value: 6},
+                          {label: '1', value: 1},
+                          {label: '2', value: 2},
+                          {label: '3', value: 3},
+                          {label: '4', value: 4},
+                          {label: '5', value: 5},
+                          {label: '6', value: 6},
                         ]}
                       />
                     </View>
@@ -644,6 +562,10 @@ function Order({navigation}) {
                 setModalVisible(false);
                 // setCurrentOrder({});
                 setOrderInfo({});
+                if(Object.keys(orderInfor).length){
+                  Order(currentTableOrder)
+
+                }
               }}
               style={{
                 marginRight: 15,
@@ -778,6 +700,7 @@ function Order({navigation}) {
                                 let foodOrdering = info[1]['ordering'];
                                 let foodSteady = info[1]['steady'];
                                 let foodQuantity = info[1]['quantity'];
+                                let foodTable = info[1]['table'];
 
                                 if (!foodFinish && !foodCancel) {
                                   let statusColor;
@@ -824,6 +747,7 @@ function Order({navigation}) {
                                           }}
                                           onPress={() => {
                                             cancel(i1, foodname);
+                                            Cancel(foodTable)
                                           }}>
                                           <Text
                                             style={{
@@ -982,4 +906,4 @@ const pickerSelectStyles = StyleSheet.create({
     paddingRight: 30, // to ensure the text is never behind the icon
   },
 });
-export default Order;
+export default OrderComponent;

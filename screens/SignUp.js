@@ -9,6 +9,7 @@ import {
 import {useState,useEffect,useContext} from 'react';
 import firestore from '@react-native-firebase/firestore';
 import { useSelector, useDispatch } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {dataUser} from '../App';
 
@@ -29,20 +30,37 @@ function SignUp({navigation}){
     const [passAgain, setPassAgain] = useState('')
     // console.log('dataUserContent.dataUserForApp',dataUserContent.dataUserForApp);
 
-    const {data,loading} = useSelector(state=>state)
+    const {userInfo, loading} = useSelector(state=>state['login'])
+
+    async function GetFCMToke() {
+      let fcmtoken = await AsyncStorage.getItem('fcmtoken');
+      // console.log('old token',fcmtoken);
+  
+      if (!fcmtoken) {
+        try {
+          fcmtoken = await messaging().getToken();
+          if (fcmtoken) {
+            await AsyncStorage.setItem('fcmtoken', fcmtoken);
+            // console.log('new token',fcmtoken);
+          }
+        } catch {}
+      }
+    }
+  
 useEffect(() => {
     // setallUser()
-    setallUser(data)
+    setallUser(userInfo)
 
+    GetFCMToke();
 
-    console.log('data',data);
+    console.log('userInfo',userInfo);
 
 
 
 }, [])
 
 
-function push() {
+async function push() {
 
   let duplicated = false
   if(allUser){
@@ -50,24 +68,22 @@ function push() {
 
     allUser.map( (user,i)=>{
       if(username == user['userName']){
-
         duplicated = true
       }
-      
-
     } )
 
     if(duplicated == true){
-    
     console.log('Usename đã có người sử dụng');
   }else{
-
+    let fcmtoken = await AsyncStorage.getItem('fcmtoken');
     firestore()
     .collection('users')
     .doc(name)
     .set({
       userName: username,
       pass: pass,
+      token:fcmtoken,
+      banned:false
     })
     .then(() => {
       console.log('User added!');

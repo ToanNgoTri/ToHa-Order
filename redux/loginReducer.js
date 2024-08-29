@@ -55,7 +55,7 @@ export const read = createSlice({
 export const login = createSlice({
   name: 'login',     
   initialState: {
-    userInfo:null,
+    userInfo:[],
     loading: false
   },
   reducers: {

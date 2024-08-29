@@ -246,7 +246,7 @@ export const BossTabNavigators = ({navigation}) => {
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({
-        lazy: false, // khi app chạy thì sẽ sẽ chạy hết tất cả các tab đồng loạt chứ không phải nhấn vô mới load
+        lazy: true, // khi app chạy thì sẽ sẽ chạy hết tất cả các tab đồng loạt chứ không phải nhấn vô mới load
       })}>
               <Tab.Screen
         name="StatisticTab"
