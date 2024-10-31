@@ -42,24 +42,6 @@ function OrderComponent({navigation}) {
 const route = useRoute();
 
 
-// console.log(route.name);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   const [data, setData] = useState(null);
   const [inputSearchTable, setInputSearchTable] = useState('');
@@ -81,17 +63,19 @@ const route = useRoute();
   let month = time.getMonth() + 1;
   let day = time.getDate();
 
-  let tableSum = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-  //   tableSum = [' Bàn số 1','Bàn số 2','Bàn số 3','Bàn số 4','Bàn số 5']
+  let tableTotalArray = []
+  let tableTotal = dataOrder['table']
+  for(let a = 0 ; a<tableTotal;a++){
+    tableTotalArray[a]= a+1
+  }
+  // let tableTotalArray = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-  // console.log('Table',Table);
-  // let foodSum = ['Món A', 'Món B', 'Món C', 'Món D', 'Món E'];
   let foodSum = Object.keys(cost);
 
   useEffect(() => {
     setSearchTableResult(
-      tableSum &&
-        tableSum.filter(item => {
+      tableTotalArray &&
+        tableTotalArray.filter(item => {
           if (
             inputSearchTable.match(/(\w+|\(|\)|\.|\+|\-|\,|\&|\?|\;|\!|\s?)/gim)
           ) {
@@ -347,7 +331,7 @@ const route = useRoute();
     }
 
     if (totalFee) {
-      Alert.alert('Tính tiền', `Số tiền cần tính là ${totalFee}`, [
+      Alert.alert('Tính tiền', `Số tiền cần tính là ${totalFee.toLocaleString('vi-VN')}`, [
         {
           text: 'Cancel',
           onPress: () => console.log('Cancel Pressed'),
@@ -375,9 +359,10 @@ const route = useRoute();
     // }
   }
 
-  // useEffect(() => {
-  //   console.log('currentOrder', currentOrder);
-  // }, [currentOrder]);
+
+  function moneyDigit(num) {
+    
+  }
 
   return (
     <>
@@ -501,6 +486,9 @@ const route = useRoute();
                         ]}
                       />
                     </View>
+                      <Text style={{color:'white',marginLeft:30,marginRight:30}}>
+                        {cost[food].toLocaleString('vi-VN')}
+                      </Text>
                   </View>
                 ))}
             </View>
@@ -635,8 +623,8 @@ const route = useRoute();
       //   alignItems: 'center',
       // }}
       >
-        {tableSum &&
-          (searchTableResult || tableSum).map((table, i) => (
+        {tableTotalArray &&
+          (searchTableResult || tableTotalArray).map((table, i) => (
             <View
               style={{
                 display: 'flex',
@@ -721,9 +709,9 @@ const route = useRoute();
                                         flexDirection: 'row',
                                       }}>
                                       <View>
-                                        <Text>{foodname}</Text>
-                                        <Text>Đơn Giá: {cost[foodname]}</Text>
-                                        <Text>Số lượng: {foodQuantity}</Text>
+                                        <Text style={{color:'white'}}>{foodname}</Text>
+                                        <Text  style={{color:'white'}}>Đơn Giá: {cost[foodname].toLocaleString('vi-VN')}</Text>
+                                        <Text  style={{color:'white'}}>Số lượng: {foodQuantity}</Text>
                                       </View>
 
                                       <View

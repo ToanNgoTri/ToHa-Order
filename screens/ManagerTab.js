@@ -10,6 +10,7 @@ import {
   Alert,
   Keyboard,
   Modal,
+  StyleSheet
 } from 'react-native';
 import database from '@react-native-firebase/database';
 import {useState, useEffect, useContext} from 'react';
@@ -17,6 +18,7 @@ import {store} from '../redux/store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {dataUser} from '../App';
 import firestore from '@react-native-firebase/firestore';
+import RNPickerSelect from 'react-native-picker-select';
 
 // import {oldUser} from '../App';
 import {useSelector, useDispatch} from 'react-redux';
@@ -28,7 +30,7 @@ export function ManagerTab({navigation}) {
   const [addFood, setaddFood] = useState('');
   const [addCost, setaddCost] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
-
+const [tableTotal, setTableTotal] = useState(0)
   const [foodInputFix, setFoodInputFix] = useState('');
   const [costInputFix, setCostInputFix] = useState('');
   const [ordFix, setOrdFix] = useState('');
@@ -40,9 +42,14 @@ export function ManagerTab({navigation}) {
   let month = time.getMonth() + 1;
   let day = time.getDate();
 
-  const {userInfo, loading} = useSelector(state => state['login']);
+  const {dataOrder, loading} = useSelector(state => state['read']);
 
-  // console.log('userInfo',userInfo);
+  let tableTotalChoosen = []
+
+  for(let a = 0 ; a<30;a++){
+    tableTotalChoosen[a] = {label: `${a+1}`, value: a+1}
+  }
+
 
   async function getUserData() {
     let userDatacopy = [];
@@ -57,18 +64,22 @@ export function ManagerTab({navigation}) {
     // console.log('userData', userData);
   }
 
+
   useEffect(() => {
+    
     database()
-      .ref(`/cost`)
+      .ref(`/`)
       .on('value', snapshot => {
-        setFoodData(snapshot.val());
+        setFoodData(snapshot.val()['cost']);
+        setTableTotal(snapshot.val()['table'])
+        // console.log('tableTotal',tableTotal);
       });
-    // dispatch({type:'fetch'})
-    // setFoodData(dataOrder['order'][year][month][day]);
+      // dispatch({type:'fetch'})
+      // setFoodData(dataOrder['order'][year][month][day]);
+      getUserData();
+    }, []);
 
-    getUserData();
-  }, []);
-
+    
   async function addedHandle() {
     Keyboard.dismiss();
     // console.log(123);
@@ -150,7 +161,7 @@ export function ManagerTab({navigation}) {
                             padding: 8,
                             backgroundColor: 'green',
                           }}>
-                          {foodData[key]['cost']}
+                          {foodData[key]['cost'].toLocaleString('vi-VN')}
                         </Text>
                         <TouchableOpacity
                           onPress={() => {
@@ -336,7 +347,7 @@ let banned = Object.values(key)[0]['banned']
                     </View>
                   );
               })}
-            <TouchableOpacity
+            {/* <TouchableOpacity
               onPress={addedHandle}
               style={{
                 backgroundColor: 'red',
@@ -348,8 +359,61 @@ let banned = Object.values(key)[0]['banned']
                 marginTop: 20,
               }}>
               <Text style={{textAlign: 'center'}}>Thêm</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
+
+          <View
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      backgroundColor: 'black',
+                      justifyContent: 'space-evenly',
+                      alignItems: 'center',
+                      marginBottom: 40,
+                    }}>
+                    <Text
+                      style={{
+                        backgroundColor: 'red',
+                        // height:40,
+                        textAlign: 'center',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        display: 'flex',
+                        marginRight: 20,
+                        marginLeft: 20,
+                      }}>
+                      Số lượng bàn hiện sử dụng {dataOrder['table']} bàn
+                    </Text>
+
+          <View style={styles.PickerContainer}>
+
+          <RNPickerSelect
+                        // placeholder={{label: `${tableTotal}`, value: tableTotal}}
+                        onValueChange={async (selectQuantity, i) => {
+                          await database()
+                          .ref(`/table`)
+                          .set(selectQuantity);
+                    
+                        }}
+                        // value={tableTotal
+                        // }
+                        style={pickerSelectStyles}
+                        items={
+                          tableTotalChoosen                          
+                        //   [
+                        //   {label: '1', value: 1},
+                        //   {label: '2', value: 2},
+                        //   {label: '3', value: 3},
+                        //   {label: '4', value: 4},
+                        //   {label: '5', value: 5},
+                        //   {label: '6', value: 6},
+                        // ]
+                      }
+                      />
+
+          </View>
+          </View>
+
         </View>
       </ScrollView>
 
@@ -447,4 +511,42 @@ let banned = Object.values(key)[0]['banned']
       )}
     </>
   );
+
+
+  
+  
 }
+const styles = StyleSheet.create({
+  PickerContainer: {
+    // flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 120,
+    // marginTop:20,
+    // backgroundColor:'green',
+    height: 40,
+  },
+})
+
+const pickerSelectStyles = StyleSheet.create({
+  inputIOS: {
+    fontSize: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: 'gray',
+    color: 'black',
+    paddingRight: 30, // to ensure the text is never behind the icon
+  },
+  inputAndroid: {
+    fontSize: 16,
+    // backgroundColor:'green',
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderWidth: 0.5,
+    borderColor: 'purple',
+    color: 'black',
+    paddingRight: 30, // to ensure the text is never behind the icon
+  },
+});

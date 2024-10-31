@@ -223,7 +223,7 @@ export function StatisticTab({navigation}) {
                   marginBottom: 30,
                   fontWeight: 'bold',
                 }}>
-                Tổng Thành tiền {sumMoney}
+                Tổng Thành tiền {sumMoney.toLocaleString('vi-VN')}
               </Text>
             </View>
             <View>
@@ -236,7 +236,7 @@ export function StatisticTab({navigation}) {
                     Số lượng đã đặt {key[1]['quantity']}
                   </Text>
                   <Text style={{textAlign: 'center', marginBottom: 10}}>
-                    Thành tiền {key[1]['money']}
+                    Thành tiền {key[1]['money'].toLocaleString('vi-VN')}
                   </Text>
                 </View>
               ))}

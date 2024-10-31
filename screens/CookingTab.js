@@ -12,7 +12,6 @@ import {
 } from 'react-native';
 import {useState, useEffect, useContext, useRef} from 'react';
 import database from '@react-native-firebase/database';
-
 import messaging from '@react-native-firebase/messaging';
 import notifee from '@notifee/react-native';
 import axios from 'axios';

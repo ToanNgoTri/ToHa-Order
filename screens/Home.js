@@ -36,7 +36,7 @@ function Home({navigation}) {
           await AsyncStorage.setItem('fcmtoken', fcmtoken);
           console.log('new token',fcmtoken);
         }
-      } catch {console.log(e);}
+      } catch(e) {console.log(e);}
     }
    SetFCMsetToken(fcmtoken)
   }
